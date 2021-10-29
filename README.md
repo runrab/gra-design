@@ -6,5 +6,5 @@
 后端springboot +mybatis   数据库mysql+redis +es
     jwt做tocken验证 (mycat作为消息中间件)
 (hadoop)+zookepeer+kafka+hbase(clicehose)+(hive不用)
-
+java语言(scala)  python语言编写爬虫
 服务器nginx做负载均衡
