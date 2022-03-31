@@ -6,3 +6,5 @@ rebel.xml
 */target
 *.mvn
 application-dev.yml
+/.jpb/
+*.cmd
