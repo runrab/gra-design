@@ -5,6 +5,7 @@ import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -1183,32 +1184,97 @@ public class SysUserController {
         listDepIds.add("c6d7cb4deeac411cb3384b1b31278596");
 
         int userCount=sysUserService.count();
-
         List userList=sysUserService.queryByDepIds(listDepIds,username);
         int userDepCount=userList.size();
-        int inCount=6;
-        int userStuCount=8;
+
+//        int userStuCount=8;
+
+//        QueryWrapper<SysUser> queryWrapper = new QueryWrapper<SysUser>();
+//        queryWrapper.eq("identity", 0);  // identity 0代表为学生 1代表老师 2代表管理员
+////        queryWrapper.ne("identity", 1);
+//        int userStuCount=sysUserService.count(queryWrapper);
+//        QueryWrapper<SysUser> queryWrapper1 = new QueryWrapper<SysUser>();
+//        queryWrapper1.eq("identity", 0)
+//                .isNotNull("city_name").ne("city_name","");
+//        int inCount=sysUserService.count(queryWrapper1);
+
+        QueryWrapper<SysUser> queryWrapper = new QueryWrapper<SysUser>();
+        int userStuCount=sysUserService.count(queryWrapper.eq("identity", 0));// identity 0代表为学生 1代表老师 2代表管理员
+        int inCount=sysUserService.count(queryWrapper.isNotNull("city_name").ne("city_name",""));
+        //学生中男性占比
+        QueryWrapper<SysUser> queryWrapper1 = new QueryWrapper<SysUser>();
+        int sexManNum=sysUserService.count(queryWrapper1.eq("sex",1));
+        int sexWoNum = userStuCount-sexManNum; //不允许非男非女 字段为空也代表女 1代表男 2代表女
+
+        //总用户中男女比
+
+
+
+        QueryWrapper<SysUser> queryWrapper3 = new QueryWrapper<SysUser>();
+        queryWrapper3.isNotNull("city_name").ne("city_name","").select("distinct city_name");
+//        queryWrapper3.groupBy("city_name");
+
+       List<SysUser> sysUsersList=sysUserService.list(queryWrapper3);
+
+        Map<String, Integer> cityMap=new TreeMap<>();//用TreeMap储存
+       for (SysUser sysUser:sysUsersList){
+           QueryWrapper<SysUser> queryWrapper4 = new QueryWrapper<SysUser>();
+           if (sysUser.getCityName()!=null){
+               cityMap.put(sysUser.getCityName(),sysUserService.count(queryWrapper4.eq("city_name",sysUser.getCityName())));
+//               System.out.println(sysUserService.count(queryWrapper4.eq("city_name",sysUser.getCityName())));
+//               System.out.println(sysUser.getCityName());
+           }
+       }
+        List<Map.Entry<String, Integer>> treeMapList =
+                new ArrayList<Map.Entry<String, Integer>>(cityMap.entrySet());
+        //通过value倒序排序
+        Collections.sort(treeMapList, new Comparator<Map.Entry<String, Integer>>() {
+            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                return (o2.getValue() - o1.getValue());
+            }
+        });
+//        System.out.println("value倒序排列------------------");
+//        for (int i = 0; i < treeMapList.size(); i++) {
+//            String id = treeMapList.get(i).toString();
+//            System.out.println(id);
+//        }
+
+        //重新写到map
+        Map map=new LinkedHashMap();  // hashmap 会搞乱顺序 只取前9 当数量不够8是后不用管
+        for (int i = 0; i < treeMapList.size(); i++) {
+            //
+            if (i>8){
+                break;
+            }
+            map.put(treeMapList.get(i).getKey(),treeMapList.get(i).getValue());
+        }
+
         //热门城市
-        Map map=new LinkedHashMap();  // hashmap 会搞乱顺序
-        map.put("北京",3400);
-        map.put("上海",2900);
-        map.put("杭州",2150);
-        map.put("深圳",2100);
-        map.put("广州",1900);
-        map.put("广州",1900);
-        map.put("苏州",1600);
-        map.put("山东",1400);
-        map.put("郑州",1000);
+//        Map map=new LinkedHashMap();  // hashmap 会搞乱顺序
+//        map.put("北京",3400);
+//        map.put("上海",2900);
+//        map.put("杭州",2150);
+//        map.put("深圳",2100);
+//        map.put("广州",1900);
+//        map.put("广州",1900);
+//        map.put("苏州",1600);
+//        map.put("山东",1400);
+//        map.put("郑州",1000);
 
         json.put("userCount",userCount); //总用户数
         json.put("userStuCount",userStuCount);//总学生数量
         json.put("userDepCount",userDepCount);//部门下总数
         json.put("inCount",inCount); // 学生填写数量
+        json.put("sexManNum",sexManNum);
+        json.put("sexWoNum",sexWoNum);
+        json.put("stuCompare",sexManNum/sexWoNum); //学生中男女比
+        json.put("userCompare",sexManNum/sexWoNum);//
         String progress=((inCount*100)/userStuCount)+"%";
         json.put("progress",progress); //百分比进度
         json.put("hotCity",map);
         result.setCode(200);
         result.setSuccess(true);
+        result.setMessage("app web 通用");
         result.setResult(json);
         return result;
     }

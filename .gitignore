@@ -4,3 +4,4 @@
 rebel.xml
 .jpb/
 */target
+*.mvn
