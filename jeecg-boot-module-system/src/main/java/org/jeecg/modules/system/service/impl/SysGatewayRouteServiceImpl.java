@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  * @Description: gateway路由管理
- * @Author: jeecg-boot
+ * @Author runrab
  * @Date: 2020-05-26
  * @Version: V1.0
  */

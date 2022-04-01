@@ -2,9 +2,13 @@ package org.jeecg.modules.system.controller;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
+import org.apache.poi.ss.formula.functions.T;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.constant.CommonConstant;
@@ -14,8 +18,10 @@ import org.jeecg.common.util.SqlInjectionUtil;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.message.websocket.WebSocket;
 import org.jeecg.modules.system.entity.SysAnnouncementSend;
+import org.jeecg.modules.system.entity.SysUserDepart;
 import org.jeecg.modules.system.model.AnnouncementSendModel;
 import org.jeecg.modules.system.service.ISysAnnouncementSendService;
+import org.jeecg.modules.system.service.ISysUserDepartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
  /**
  * @Title: Controller
  * @Description: 用户通告阅读标记表
- * @Author: jeecg-boot
+ * @Author runrab
  * @Date:  2019-02-21
  * @Version: V1.0
  */
@@ -50,6 +56,9 @@ public class SysAnnouncementSendController {
 	private ISysAnnouncementSendService sysAnnouncementSendService;
 	@Autowired
 	private WebSocket webSocket;
+
+	 @Autowired
+	 private ISysUserDepartService sysUserDepartService;
 
 	/**
 	  * 分页列表查询
@@ -223,13 +232,13 @@ public class SysAnnouncementSendController {
 		announcementSendModel.setUserId(userId);
 		announcementSendModel.setPageNo((pageNo-1)*pageSize);
 		announcementSendModel.setPageSize(pageSize);
+		System.out.println(announcementSendModel.getId());
 		Page<AnnouncementSendModel> pageList = new Page<AnnouncementSendModel>(pageNo,pageSize);
 		pageList = sysAnnouncementSendService.getMyAnnouncementSendPage(pageList, announcementSendModel);
 		result.setResult(pageList);
 		result.setSuccess(true);
 		return result;
 	}
-
 	/**
 	 * @功能：一键已读
 	 * @return

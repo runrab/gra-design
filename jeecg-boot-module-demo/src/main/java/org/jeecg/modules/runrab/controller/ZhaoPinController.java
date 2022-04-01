@@ -37,7 +37,7 @@ import io.swagger.annotations.ApiOperation;
 
  /**
  * @Description: 招聘
- * @Author: jeecg-boot
+ * @Author runrab
  * @Date:   2022-03-28
  * @Version: V1.0
  */
@@ -63,7 +63,7 @@ public class ZhaoPinController extends JeecgController<ZhaoPin, IZhaoPinService>
 	@GetMapping(value = "/list")
 	public Result<?> queryPageList(ZhaoPin zhaoPin,
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
-								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
+								   @RequestParam(name="pageSize", defaultValue="50") Integer pageSize,
 								   HttpServletRequest req) {
 		QueryWrapper<ZhaoPin> queryWrapper = QueryGenerator.initQueryWrapper(zhaoPin, req.getParameterMap());
 		Page<ZhaoPin> page = new Page<ZhaoPin>(pageNo, pageSize);

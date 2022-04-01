@@ -1201,13 +1201,15 @@ public class SysUserController {
         QueryWrapper<SysUser> queryWrapper = new QueryWrapper<SysUser>();
         int userStuCount=sysUserService.count(queryWrapper.eq("identity", 0));// identity 0代表为学生 1代表老师 2代表管理员
         int inCount=sysUserService.count(queryWrapper.isNotNull("city_name").ne("city_name",""));
-        //学生中男性占比
+        //总用户中中男性占比
         QueryWrapper<SysUser> queryWrapper1 = new QueryWrapper<SysUser>();
         int sexManNum=sysUserService.count(queryWrapper1.eq("sex",1));
-        int sexWoNum = userStuCount-sexManNum; //不允许非男非女 字段为空也代表女 1代表男 2代表女
+        int sexWoNum = userCount-sexManNum; //不允许非男非女 字段为空也代表女 1代表男 2代表女
 
-        //总用户中男女比
-
+        //学生 中男女比
+        QueryWrapper<SysUser> queryWrapper2 = new QueryWrapper<SysUser>();
+        int sexStuManNum = sysUserService.count(queryWrapper1.eq("identity", 0).eq("sex",1));
+        int sexStuWoNum = userStuCount-sexStuManNum;
 
 
         QueryWrapper<SysUser> queryWrapper3 = new QueryWrapper<SysUser>();
@@ -1267,8 +1269,10 @@ public class SysUserController {
         json.put("inCount",inCount); // 学生填写数量
         json.put("sexManNum",sexManNum);
         json.put("sexWoNum",sexWoNum);
-        json.put("stuCompare",sexManNum/sexWoNum); //学生中男女比
-        json.put("userCompare",sexManNum/sexWoNum);//
+        json.put("sexStuManNum",sexStuManNum);
+        json.put("sexStuWoNum",sexStuWoNum);
+//        json.put("stuCompare",sexManNum/sexWoNum); //学生中男女比
+//        json.put("userCompare",sexManNum/sexWoNum);//
         String progress=((inCount*100)/userStuCount)+"%";
         json.put("progress",progress); //百分比进度
         json.put("hotCity",map);

@@ -12,7 +12,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * @Description: 订单
- * @Author: jeecg-boot
+ * @Author runrab
  * @Date:  2019-02-15
  * @Version: V1.0
  */
@@ -32,13 +32,13 @@ public interface IJeecgOrderMainService extends IService<JeecgOrderMain> {
 	
 	/**
 	 * 删除一对多
-	 * @param jformOrderMain
+	 * @param
 	 */
 	public void delMain (String id);
 	
 	/**
 	 * 批量删除一对多
-	 * @param jformOrderMain
+	 * @param
 	 */
 	public void delBatchMain (Collection<? extends Serializable> idList);
 

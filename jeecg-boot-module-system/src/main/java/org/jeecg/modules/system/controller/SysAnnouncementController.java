@@ -23,8 +23,12 @@ import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.message.websocket.WebSocket;
 import org.jeecg.modules.system.entity.SysAnnouncement;
 import org.jeecg.modules.system.entity.SysAnnouncementSend;
+import org.jeecg.modules.system.entity.SysDepart;
+import org.jeecg.modules.system.entity.SysUserDepart;
 import org.jeecg.modules.system.service.ISysAnnouncementSendService;
 import org.jeecg.modules.system.service.ISysAnnouncementService;
+import org.jeecg.modules.system.service.ISysDepartService;
+import org.jeecg.modules.system.service.ISysUserDepartService;
 import org.jeecg.modules.system.service.impl.ThirdAppDingtalkServiceImpl;
 import org.jeecg.modules.system.service.impl.ThirdAppWechatEnterpriseServiceImpl;
 import org.jeecg.modules.system.util.XSSUtils;
@@ -45,17 +49,14 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.jeecg.common.constant.CommonConstant.ANNOUNCEMENT_SEND_STATUS_1;
 
 /**
  * @Title: Controller
  * @Description: 系统通告表
- * @Author: jeecg-boot
+ * @Author runrab
  * @Date: 2019-01-02
  * @Version: V1.0
  */
@@ -78,6 +79,14 @@ public class SysAnnouncementController {
 	@Autowired
 	@Lazy
 	private RedisUtil redisUtil;
+
+	//部门表  不用
+//	@Autowired
+//	private ISysDepartService sysDepartService;
+
+	//用户部门表 定向组织发布
+	@Autowired
+	private ISysUserDepartService sysUserDepartService;
 
 	/**
 	  * 分页列表查询
@@ -252,7 +261,8 @@ public class SysAnnouncementController {
 					obj.put(WebsocketConst.MSG_ID, sysAnnouncement.getId());
 					obj.put(WebsocketConst.MSG_TXT, sysAnnouncement.getTitile());
 			    	webSocket.sendMessage(obj.toJSONString());
-				}else {
+				}
+				else {
 					// 2.插入用户通告阅读标记表记录
 					String userId = sysAnnouncement.getUserIds();
 					String[] userIds = userId.substring(0, (userId.length()-1)).split(",");

@@ -37,7 +37,7 @@ import io.swagger.annotations.ApiOperation;
 
  /**
  * @Description: 消息
- * @Author: jeecg-boot
+ * @Author runrab
  * @Date:   2022-03-28
  * @Version: V1.0
  */
@@ -63,7 +63,7 @@ public class MessageController extends JeecgController<Message, IMessageService>
 	@GetMapping(value = "/list")
 	public Result<?> queryPageList(Message message,
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
-								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
+								   @RequestParam(name="pageSize", defaultValue="50") Integer pageSize,
 								   HttpServletRequest req) {
 		QueryWrapper<Message> queryWrapper = QueryGenerator.initQueryWrapper(message, req.getParameterMap());
 		Page<Message> page = new Page<Message>(pageNo, pageSize);

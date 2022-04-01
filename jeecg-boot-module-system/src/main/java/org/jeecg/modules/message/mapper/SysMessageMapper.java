@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * @Description: 消息
- * @Author: jeecg-boot
+ * @Author runrab
  * @Date:  2019-04-09
  * @Version: V1.0
  */

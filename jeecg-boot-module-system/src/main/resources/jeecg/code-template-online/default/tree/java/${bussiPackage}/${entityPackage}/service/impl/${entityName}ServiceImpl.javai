@@ -26,7 +26,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 /**
  * @Description: ${tableVo.ftlDescription}
- * @Author: jeecg-boot
+ * @Author runrab
  * @Date:   ${.now?string["yyyy-MM-dd"]}
  * @Version: V1.0
  */

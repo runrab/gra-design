@@ -63,7 +63,7 @@ public class DataGenerator {
                 cityAddress=city.substring(0, city.indexOf("市")+1);
             } else {
                 cityAddress=city.substring(0, city.indexOf("自")+1);
-                cityAddress=cityAddress+"自治区";
+                cityAddress=cityAddress+"治区";
             }
             return cityAddress;
         }

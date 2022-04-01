@@ -38,7 +38,7 @@ import java.util.Map;
 
 /**
  * @Description: 定时任务在线管理
- * @Author: jeecg-boot
+ * @Author runrab
  * @Date: 2019-01-02
  * @Version:V1.0
  */
