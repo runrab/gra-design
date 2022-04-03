@@ -302,9 +302,8 @@ public class SysAnnouncementSendController {
 		 return result;
 	 }
 
-
 	/**
-	 * @功能：一键已读
+	 * @功能：一键已读   等待修改 当 组织内已经读完后显示已读
 	 * @return
 	 */
 	@PutMapping(value = "/readAll")

@@ -126,6 +126,7 @@ public class SysAnnouncementController {
 
 	/**
 	  *   添加
+	 *   app 提交还需要 发布时间 发布人 合起来 作为唯一标识
 	 * @param sysAnnouncement
 	 * @return
 	 */
@@ -147,6 +148,37 @@ public class SysAnnouncementController {
 		}
 		return result;
 	}
+
+	/**
+	 *   添加
+	 *   app 提交还需要 发布时间 发布人 合起来 作为唯一标识
+	 * @param sysAnnouncement
+	 * @return
+	 */
+	@RequestMapping(value = "/appAdd", method = RequestMethod.POST)
+	public Result<SysAnnouncement> appAdd(@RequestBody SysAnnouncement sysAnnouncement) {
+		Result<SysAnnouncement> result = new Result<SysAnnouncement>();
+		QueryWrapper<SysUserDepart> queryWrapper=new QueryWrapper<>();
+		String userIds=sysAnnouncement.getUserIds().replaceAll(",",""); //被添加了逗号
+		String userId=sysUserDepartService.getOne(queryWrapper.eq("user_id",userIds)).getDepId()+','; //再添加回去
+		sysAnnouncement.setUserIds(userId);
+
+		try {
+			// update-begin-author:liusq date:20210804 for:标题处理xss攻击的问题
+			String title = XSSUtils.striptXSS(sysAnnouncement.getTitile());
+			sysAnnouncement.setTitile(title);
+			// update-end-author:liusq date:20210804 for:标题处理xss攻击的问题
+			sysAnnouncement.setDelFlag(CommonConstant.DEL_FLAG_0.toString());
+			sysAnnouncement.setSendStatus(CommonSendStatus.PUBLISHED_STATUS_1);//未发布
+			sysAnnouncementService.saveAnnouncement(sysAnnouncement);
+			result.success("添加成功！");
+		} catch (Exception e) {
+			log.error(e.getMessage(),e);
+			result.error500("操作失败");
+		}
+		return result;
+	}
+
 
 	/**
 	  *  编辑
@@ -278,7 +310,6 @@ public class SysAnnouncementController {
 					// 同步企业微信、钉钉的消息通知
 					Response<String> dtResponse = dingtalkService.sendActionCardMessage(sysAnnouncement, true);
 					wechatEnterpriseService.sendTextCardMessage(sysAnnouncement, true);
-
 					if (dtResponse != null && dtResponse.isSuccess()) {
 						String taskId = dtResponse.getResult();
 						sysAnnouncement.setDtTaskId(taskId);
@@ -292,7 +323,6 @@ public class SysAnnouncementController {
 
 		return result;
 	}
-
 	/**
 	 *	 更新撤销操作
 	 * @param id
@@ -328,7 +358,7 @@ public class SysAnnouncementController {
 	 * @return
 	 */
 	@RequestMapping(value = "/listByUser", method = RequestMethod.GET)
-	public Result<Map<String, Object>> listByUser(@RequestParam(required = false, defaultValue = "5") Integer pageSize) {
+	public Result<Map<String, Object>> listByUser(@RequestParam(required = false, defaultValue = "10") Integer pageSize) {
 		Result<Map<String,Object>> result = new Result<Map<String,Object>>();
 		LoginUser sysUser = (LoginUser)SecurityUtils.getSubject().getPrincipal();
 		String userId = sysUser.getId();
