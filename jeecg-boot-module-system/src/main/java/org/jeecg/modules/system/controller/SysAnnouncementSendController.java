@@ -1,8 +1,7 @@
 package org.jeecg.modules.system.controller;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,6 +21,7 @@ import org.jeecg.modules.system.entity.SysUserDepart;
 import org.jeecg.modules.system.model.AnnouncementSendModel;
 import org.jeecg.modules.system.service.ISysAnnouncementSendService;
 import org.jeecg.modules.system.service.ISysUserDepartService;
+import org.jeecg.modules.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,6 +59,8 @@ public class SysAnnouncementSendController {
 
 	 @Autowired
 	 private ISysUserDepartService sysUserDepartService;
+	 @Autowired
+	 private ISysUserService sysUserService;
 
 	/**
 	  * 分页列表查询
@@ -232,13 +234,72 @@ public class SysAnnouncementSendController {
 		announcementSendModel.setUserId(userId);
 		announcementSendModel.setPageNo((pageNo-1)*pageSize);
 		announcementSendModel.setPageSize(pageSize);
-		System.out.println(announcementSendModel.getId());
 		Page<AnnouncementSendModel> pageList = new Page<AnnouncementSendModel>(pageNo,pageSize);
 		pageList = sysAnnouncementSendService.getMyAnnouncementSendPage(pageList, announcementSendModel);
 		result.setResult(pageList);
 		result.setSuccess(true);
 		return result;
 	}
+
+//	 @GetMapping(value = "/getMyAnnouncementSendMsg")
+//	 public Result<IPage<AnnouncementSendModel>> getMyAnnouncementSendMsg(AnnouncementSendModel announcementSendModel,
+//																		  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+//																		  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize) {
+//		 Result<IPage<AnnouncementSendModel>> result = new Result<IPage<AnnouncementSendModel>>();
+//		 LoginUser sysUser = (LoginUser)SecurityUtils.getSubject().getPrincipal();
+//		 String userId = sysUser.getId();
+//		 String depId = sysUser.getDepartIds();
+//		 List<AnnouncementSendModel> pageList = new ArrayList<>();
+//		 Page<AnnouncementSendModel> pageList3 = new Page<AnnouncementSendModel>(pageNo,pageSize);
+//
+//		 if (depId!=null){
+//			 List<AnnouncementSendModel> pageList1 = new ArrayList<>();
+//			 announcementSendModel.setUserId(userId);
+//			 pageList1 = sysAnnouncementSendService.getMyAnnouncement(announcementSendModel);
+//			 pageList.addAll(pageList1);
+//			 pageList3.addOrder();
+//		 }
+//		 if (userId!=null){
+//			 List<AnnouncementSendModel> pageList1 = new ArrayList<>();
+//			 announcementSendModel.setUserId(userId);
+//			 pageList1 = sysAnnouncementSendService.getMyAnnouncement(announcementSendModel);
+//			 pageList.addAll(pageList1);
+//		 }
+//		 //分页
+//		 pageList3.setRecords(pageList);
+//		 result.setResult(pageList3);
+//		 result.setSuccess(true);
+//		 return result;
+//	 }
+
+
+	 @GetMapping(value = "/getMyAnnouncementSendMsg")
+	 public Result<List<AnnouncementSendModel>> getMyAnnouncementSendMsg(AnnouncementSendModel announcementSendModel) {
+		 Result<List<AnnouncementSendModel>> result = new Result<List<AnnouncementSendModel>>();
+		 LoginUser sysUser = (LoginUser)SecurityUtils.getSubject().getPrincipal();
+		 String userId = sysUser.getId();
+		 String depId = sysUser.getDepartIds();
+		 List<AnnouncementSendModel> pageList = new ArrayList<>();
+		 if (depId!=null){
+			 List<AnnouncementSendModel> pageList1 = new ArrayList<>();
+			 announcementSendModel.setUserId(depId);
+			 pageList1 = sysAnnouncementSendService.getMyAnnouncement(announcementSendModel);
+			 pageList.addAll(pageList1);
+		 }
+		 if (userId!=null){
+			 List<AnnouncementSendModel> pageList1 = new ArrayList<>();
+			 announcementSendModel.setUserId(userId);
+			 pageList1 = sysAnnouncementSendService.getMyAnnouncement(announcementSendModel);
+			 pageList.addAll(pageList1);
+		 }
+		 // jdk8 去重 list 此处其实不用去重复 防止 公告同时指定组织和个人 导致消息重复收到
+		 List<AnnouncementSendModel> myList = pageList.stream().distinct().collect(Collectors.toList());
+		 result.setResult(myList);
+		 result.setSuccess(true);
+		 return result;
+	 }
+
+
 	/**
 	 * @功能：一键已读
 	 * @return

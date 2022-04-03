@@ -28,4 +28,8 @@ public interface SysAnnouncementSendMapper extends BaseMapper<SysAnnouncementSen
 	 */
 	public List<AnnouncementSendModel> getMyAnnouncementSendList(Page<AnnouncementSendModel> page,@Param("announcementSendModel") AnnouncementSendModel announcementSendModel);
 
+
+	public List<AnnouncementSendModel> getMyAnnouncementSend(@Param("announcementSendModel") AnnouncementSendModel announcementSendModel);
+
+
 }
