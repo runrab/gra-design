@@ -18,17 +18,17 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
- * @Description: 留言信息
+ * @Description: 招聘信息
  * @Author runrab
  * @Date:   2022-04-02
  * @Version: V1.0
  */
 @Data
-@TableName("message")
+@TableName("zhaopin")
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value="message对象", description="留言信息")
-public class Message implements Serializable {
+@ApiModel(value="zhaopin对象", description="招聘信息")
+public class Zhaopin implements Serializable {
     private static final long serialVersionUID = 1L;
 
 	/**主键*/
@@ -50,24 +50,16 @@ public class Message implements Serializable {
 	/**所属部门*/
     @ApiModelProperty(value = "所属部门")
     private java.lang.String sysOrgCode;
-	/**留言用户*/
-	@Excel(name = "留言用户", width = 15)
-    @ApiModelProperty(value = "留言用户")
+	/**招聘发布信息用户*/
+	@Excel(name = "招聘发布信息用户", width = 15)
+    @ApiModelProperty(value = "招聘发布信息用户")
     private java.lang.String userid;
-	/**用户头像*/
-	@Excel(name = "用户头像", width = 15)
-    @ApiModelProperty(value = "用户头像")
+	/**头像*/
+	@Excel(name = "头像", width = 15)
+    @ApiModelProperty(value = "头像")
     private java.lang.String avatar;
-	/**身份信息*/
-	@Excel(name = "身份信息", width = 15)
-    @ApiModelProperty(value = "身份信息")
-    private java.lang.Integer identity;
-	/**可见性*/
-	@Excel(name = "可见性", width = 15)
-    @ApiModelProperty(value = "可见性")
-    private java.lang.Integer visible;
-	/**留言内容*/
-	@Excel(name = "留言内容", width = 15)
-    @ApiModelProperty(value = "留言内容")
+	/**发布内容*/
+	@Excel(name = "发布内容", width = 15)
+    @ApiModelProperty(value = "发布内容")
     private java.lang.String context;
 }

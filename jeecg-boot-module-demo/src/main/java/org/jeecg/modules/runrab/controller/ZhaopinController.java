@@ -12,8 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
-import org.jeecg.modules.runrab.entity.Message;
-import org.jeecg.modules.runrab.service.IMessageService;
+import org.jeecg.modules.runrab.entity.Zhaopin;
+import org.jeecg.modules.runrab.service.IZhaopinService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -37,66 +37,66 @@ import io.swagger.annotations.ApiOperation;
 import org.jeecg.common.aspect.annotation.AutoLog;
 
  /**
- * @Description: 留言信息
+ * @Description: 招聘信息
  * @Author runrab
  * @Date:   2022-04-02
  * @Version: V1.0
  */
-@Api(tags="留言信息")
+@Api(tags="招聘信息")
 @RestController
-@RequestMapping("/runrab/message")
+@RequestMapping("/runrab/zhaopin")
 @Slf4j
-public class MessageController extends JeecgController<Message, IMessageService> {
+public class ZhaopinController extends JeecgController<Zhaopin, IZhaopinService> {
 	@Autowired
-	private IMessageService messageService;
+	private IZhaopinService zhaopinService;
 	
 	/**
 	 * 分页列表查询
 	 *
-	 * @param message
+	 * @param zhaopin
 	 * @param pageNo
 	 * @param pageSize
 	 * @param req
 	 * @return
 	 */
-	//@AutoLog(value = "留言信息-分页列表查询")
-	@ApiOperation(value="留言信息-分页列表查询", notes="留言信息-分页列表查询")
+	//@AutoLog(value = "招聘信息-分页列表查询")
+	@ApiOperation(value="招聘信息-分页列表查询", notes="招聘信息-分页列表查询")
 	@GetMapping(value = "/list")
-	public Result<IPage<Message>> queryPageList(Message message,
+	public Result<IPage<Zhaopin>> queryPageList(Zhaopin zhaopin,
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
-		QueryWrapper<Message> queryWrapper = QueryGenerator.initQueryWrapper(message, req.getParameterMap());
-		Page<Message> page = new Page<Message>(pageNo, pageSize);
-		IPage<Message> pageList = messageService.page(page, queryWrapper);
+		QueryWrapper<Zhaopin> queryWrapper = QueryGenerator.initQueryWrapper(zhaopin, req.getParameterMap());
+		Page<Zhaopin> page = new Page<Zhaopin>(pageNo, pageSize);
+		IPage<Zhaopin> pageList = zhaopinService.page(page, queryWrapper);
 		return Result.OK(pageList);
 	}
 	
 	/**
 	 *   添加
 	 *
-	 * @param message
+	 * @param zhaopin
 	 * @return
 	 */
-	@AutoLog(value = "留言信息-添加")
-	@ApiOperation(value="留言信息-添加", notes="留言信息-添加")
+	@AutoLog(value = "招聘信息-添加")
+	@ApiOperation(value="招聘信息-添加", notes="招聘信息-添加")
 	@PostMapping(value = "/add")
-	public Result<String> add(@RequestBody Message message) {
-		messageService.save(message);
+	public Result<String> add(@RequestBody Zhaopin zhaopin) {
+		zhaopinService.save(zhaopin);
 		return Result.OK("添加成功！");
 	}
 	
 	/**
 	 *  编辑
 	 *
-	 * @param message
+	 * @param zhaopin
 	 * @return
 	 */
-	@AutoLog(value = "留言信息-编辑")
-	@ApiOperation(value="留言信息-编辑", notes="留言信息-编辑")
+	@AutoLog(value = "招聘信息-编辑")
+	@ApiOperation(value="招聘信息-编辑", notes="招聘信息-编辑")
 	@RequestMapping(value = "/edit", method = {RequestMethod.PUT,RequestMethod.POST})
-	public Result<String> edit(@RequestBody Message message) {
-		messageService.updateById(message);
+	public Result<String> edit(@RequestBody Zhaopin zhaopin) {
+		zhaopinService.updateById(zhaopin);
 		return Result.OK("编辑成功!");
 	}
 	
@@ -106,11 +106,11 @@ public class MessageController extends JeecgController<Message, IMessageService>
 	 * @param id
 	 * @return
 	 */
-	@AutoLog(value = "留言信息-通过id删除")
-	@ApiOperation(value="留言信息-通过id删除", notes="留言信息-通过id删除")
+	@AutoLog(value = "招聘信息-通过id删除")
+	@ApiOperation(value="招聘信息-通过id删除", notes="招聘信息-通过id删除")
 	@DeleteMapping(value = "/delete")
 	public Result<String> delete(@RequestParam(name="id",required=true) String id) {
-		messageService.removeById(id);
+		zhaopinService.removeById(id);
 		return Result.OK("删除成功!");
 	}
 	
@@ -120,11 +120,11 @@ public class MessageController extends JeecgController<Message, IMessageService>
 	 * @param ids
 	 * @return
 	 */
-	@AutoLog(value = "留言信息-批量删除")
-	@ApiOperation(value="留言信息-批量删除", notes="留言信息-批量删除")
+	@AutoLog(value = "招聘信息-批量删除")
+	@ApiOperation(value="招聘信息-批量删除", notes="招聘信息-批量删除")
 	@DeleteMapping(value = "/deleteBatch")
 	public Result<String> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
-		this.messageService.removeByIds(Arrays.asList(ids.split(",")));
+		this.zhaopinService.removeByIds(Arrays.asList(ids.split(",")));
 		return Result.OK("批量删除成功!");
 	}
 	
@@ -134,26 +134,26 @@ public class MessageController extends JeecgController<Message, IMessageService>
 	 * @param id
 	 * @return
 	 */
-	//@AutoLog(value = "留言信息-通过id查询")
-	@ApiOperation(value="留言信息-通过id查询", notes="留言信息-通过id查询")
+	//@AutoLog(value = "招聘信息-通过id查询")
+	@ApiOperation(value="招聘信息-通过id查询", notes="招聘信息-通过id查询")
 	@GetMapping(value = "/queryById")
-	public Result<Message> queryById(@RequestParam(name="id",required=true) String id) {
-		Message message = messageService.getById(id);
-		if(message==null) {
+	public Result<Zhaopin> queryById(@RequestParam(name="id",required=true) String id) {
+		Zhaopin zhaopin = zhaopinService.getById(id);
+		if(zhaopin==null) {
 			return Result.error("未找到对应数据",null);
 		}
-		return Result.OK(message);
+		return Result.OK(zhaopin);
 	}
 
     /**
     * 导出excel
     *
     * @param request
-    * @param message
+    * @param zhaopin
     */
     @RequestMapping(value = "/exportXls")
-    public ModelAndView exportXls(HttpServletRequest request, Message message) {
-        return super.exportXls(request, message, Message.class, "留言信息");
+    public ModelAndView exportXls(HttpServletRequest request, Zhaopin zhaopin) {
+        return super.exportXls(request, zhaopin, Zhaopin.class, "招聘信息");
     }
 
     /**
@@ -165,7 +165,7 @@ public class MessageController extends JeecgController<Message, IMessageService>
     */
     @RequestMapping(value = "/importExcel", method = RequestMethod.POST)
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
-        return super.importExcel(request, response, Message.class);
+        return super.importExcel(request, response, Zhaopin.class);
     }
 
 }
