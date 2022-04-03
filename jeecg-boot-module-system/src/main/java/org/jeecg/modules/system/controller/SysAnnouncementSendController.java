@@ -19,6 +19,7 @@ import org.jeecg.modules.message.websocket.WebSocket;
 import org.jeecg.modules.system.entity.SysAnnouncementSend;
 import org.jeecg.modules.system.entity.SysUserDepart;
 import org.jeecg.modules.system.model.AnnouncementSendModel;
+import org.jeecg.modules.system.model.DepartIdModel;
 import org.jeecg.modules.system.service.ISysAnnouncementSendService;
 import org.jeecg.modules.system.service.ISysUserDepartService;
 import org.jeecg.modules.system.service.ISysUserService;
@@ -278,7 +279,9 @@ public class SysAnnouncementSendController {
 		 Result<List<AnnouncementSendModel>> result = new Result<List<AnnouncementSendModel>>();
 		 LoginUser sysUser = (LoginUser)SecurityUtils.getSubject().getPrincipal();
 		 String userId = sysUser.getId();
-		 String depId = sysUser.getDepartIds();
+		 QueryWrapper<SysUserDepart> queryWrapper=new QueryWrapper<>();
+		 queryWrapper.eq("user_id",userId);
+		 String depId = sysUserDepartService.getOne(queryWrapper).getDepId();
 		 List<AnnouncementSendModel> pageList = new ArrayList<>();
 		 if (depId!=null){
 			 List<AnnouncementSendModel> pageList1 = new ArrayList<>();
