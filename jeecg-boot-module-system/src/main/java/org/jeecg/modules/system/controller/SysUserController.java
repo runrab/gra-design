@@ -1168,20 +1168,26 @@ public class SysUserController {
 
 
     /**
-     * 专业为首页展示设计   正在开发ß
+     * 专业为首页展示设计   正在开发
      * @param
      * @return
      *
      */
 
     @GetMapping("/showChartsCount")
-    public Result<?> showChartsCount() {
+    public Result<?> showChartsCount(HttpServletRequest request, @RequestParam(name = "token", required = false) String token) {
         Result result=new Result();
         JSONObject json=new JSONObject();
-//        String username = JwtUtil.getUserNameByToken(request);
-        String username = "admin";
+        String username = null;
+        // 如果没有传递token，就从header中获取token并获取用户信息
+        if (oConvertUtils.isEmpty(token)) {
+            username = JwtUtil.getUserNameByToken(request);
+        } else {
+            username = JwtUtil.getUsername(token);
+        }
         List listDepIds=new ArrayList();
-        listDepIds.add("c6d7cb4deeac411cb3384b1b31278596");
+        String depId=sysUserService.getUserByName(username).getDepartIds();
+        listDepIds.add(depId);
 
         int userCount=sysUserService.count();
         List userList=sysUserService.queryByDepIds(listDepIds,username);
@@ -1210,8 +1216,6 @@ public class SysUserController {
         QueryWrapper<SysUser> queryWrapper2 = new QueryWrapper<SysUser>();
         int sexStuManNum = sysUserService.count(queryWrapper1.eq("identity", 0).eq("sex",1));
         int sexStuWoNum = userStuCount-sexStuManNum;
-
-
         QueryWrapper<SysUser> queryWrapper3 = new QueryWrapper<SysUser>();
         queryWrapper3.isNotNull("city_name").ne("city_name","").select("distinct city_name");
 //        queryWrapper3.groupBy("city_name");
@@ -1240,7 +1244,6 @@ public class SysUserController {
 //            String id = treeMapList.get(i).toString();
 //            System.out.println(id);
 //        }
-
         //重新写到map
         Map map=new LinkedHashMap();  // hashmap 会搞乱顺序 只取前9 当数量不够8是后不用管
         for (int i = 0; i < treeMapList.size(); i++) {
@@ -1248,21 +1251,10 @@ public class SysUserController {
             if (i>8){
                 break;
             }
-            map.put(treeMapList.get(i).getKey(),treeMapList.get(i).getValue());
+            if (treeMapList.get(i).getValue()>0){
+                map.put(treeMapList.get(i).getKey(),treeMapList.get(i).getValue());
+            }
         }
-
-        //热门城市
-//        Map map=new LinkedHashMap();  // hashmap 会搞乱顺序
-//        map.put("北京",3400);
-//        map.put("上海",2900);
-//        map.put("杭州",2150);
-//        map.put("深圳",2100);
-//        map.put("广州",1900);
-//        map.put("广州",1900);
-//        map.put("苏州",1600);
-//        map.put("山东",1400);
-//        map.put("郑州",1000);
-
         json.put("userCount",userCount); //总用户数
         json.put("userStuCount",userStuCount);//总学生数量
         json.put("userDepCount",userDepCount);//部门下总数
@@ -1276,9 +1268,99 @@ public class SysUserController {
         String progress=((inCount*100)/userStuCount)+"%";
         json.put("progress",progress); //百分比进度
         json.put("hotCity",map);
+        json.put("cityMap",cityMap); //不排序 应该选出12个就够用了  暂时全部写上 让前端随机选取
         result.setCode(200);
         result.setSuccess(true);
-        result.setMessage("app web 通用");
+        result.setMessage("app web 数据展示 通用");
+        result.setResult(json);
+        return result;
+    }
+
+
+    //只针对学生 故不再对其它情况进行统计
+    @GetMapping(value = "/showOrgCount")
+    public Result showOrgCount(HttpServletRequest request, @RequestParam(name = "token", required = false) String token) {
+        Result result=new Result();
+        String username = null;
+        // 如果没有传递token，就从header中获取token并获取用户信息
+        if (oConvertUtils.isEmpty(token)) {
+            username = JwtUtil.getUserNameByToken(request);
+        } else {
+            username = JwtUtil.getUsername(token);
+        }
+        String userId=sysUserService.getUserByName(username).getId();
+        //查询条件
+        QueryWrapper<SysUserDepart> queryWrapper1 = new QueryWrapper<>();
+        queryWrapper1.isNotNull("user_id").eq("user_id", userId);
+        String userDep = sysUserDepartService.getOne(queryWrapper1).getDepId();
+        JSONObject json=new JSONObject();
+        List listDepIds=new ArrayList();
+        listDepIds.add(userDep);
+//        QueryWrapper<SysUserDepart> queryWrapper2 = new QueryWrapper<>();
+//        queryWrapper2.isNotNull("dep_id").eq("dep_id", userDep);
+//        //得到组织中所有用户的id
+//        List<SysUserDepart> userIds=sysUserDepartService.list(queryWrapper2);
+        List<SysUser> userList=sysUserService.queryByDepIds(listDepIds,username);
+        List<String>  userIdList=new ArrayList<>();
+        for (SysUser sysUser:userList){
+            if (sysUser.getIdentity()==0){
+                userIdList.add(sysUser.getId());
+            }
+        }
+
+        //班级用户数量
+        int userCount=userList.size();
+        //班级填写数量
+        QueryWrapper<SysUser> queryWrapper2 = new QueryWrapper<>();
+        int inCount=sysUserService.count(queryWrapper2.isNotNull("identity")
+                .eq("identity",0).in("id",userIdList));
+        //男性数量
+        int manCount=sysUserService.count(queryWrapper2.isNotNull("sex").eq("sex",1));
+        //男性填写数量
+        int inCount1=sysUserService.count(queryWrapper2.isNotNull("city_name").ne("city_name",""));
+
+        QueryWrapper<SysUser> queryWrapper3 = new QueryWrapper<>();
+        queryWrapper3.isNotNull("city_name").ne("city_name","").select("distinct city_name");
+        List<SysUser> sysUsersList=sysUserService.list(queryWrapper3);
+
+        Map<String, Integer> cityMap=new TreeMap<>();//用TreeMap储存
+        for (SysUser sysUser:sysUsersList){
+            QueryWrapper<SysUser> queryWrapper4 = new QueryWrapper<>();
+            if (sysUser.getCityName()!=null){
+                cityMap.put(sysUser.getCityName(),sysUserService.count(queryWrapper4.in("id",userIdList).eq("city_name",sysUser.getCityName())));
+            }
+        }
+        List<Map.Entry<String, Integer>> treeMapList =
+                new ArrayList<Map.Entry<String, Integer>>(cityMap.entrySet());
+        //通过value倒序排序
+        Collections.sort(treeMapList, new Comparator<Map.Entry<String, Integer>>() {
+            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                return (o2.getValue() - o1.getValue());
+            }
+        });
+        //重新写到map
+        Map map=new LinkedHashMap();  // hashmap 会搞乱顺序 只取前10 当数量不够8是后不用管
+        for (int i = 0; i < treeMapList.size(); i++) {
+            //
+            if (i>9){
+                break;
+            }
+            if (treeMapList.get(i).getValue()>0){
+                map.put(treeMapList.get(i).getKey(),treeMapList.get(i).getValue());
+            }
+        }
+        json.put("userCount",userCount); //总用户数 包含教师  剔除教师
+        json.put("manCount",manCount);
+        json.put("woCount",userCount-manCount);
+        json.put("inCount",inCount); // 学生填写数量
+        json.put("inCount1",inCount1);
+        json.put("inCount2",inCount-inCount1);
+        String progress=((inCount*100)/userCount)+"%";
+        json.put("progress",progress); //百分比进度
+        json.put("hotCity",map);
+        result.setCode(200);
+        result.setSuccess(true);
+        result.setMessage("app web 班级 通用");
         result.setResult(json);
         return result;
     }
