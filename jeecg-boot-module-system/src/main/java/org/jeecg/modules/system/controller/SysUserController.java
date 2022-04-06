@@ -1188,22 +1188,9 @@ public class SysUserController {
         List listDepIds=new ArrayList();
         String depId=sysUserService.getUserByName(username).getDepartIds();
         listDepIds.add(depId);
-
         int userCount=sysUserService.count();
         List userList=sysUserService.queryByDepIds(listDepIds,username);
         int userDepCount=userList.size();
-
-//        int userStuCount=8;
-
-//        QueryWrapper<SysUser> queryWrapper = new QueryWrapper<SysUser>();
-//        queryWrapper.eq("identity", 0);  // identity 0代表为学生 1代表老师 2代表管理员
-////        queryWrapper.ne("identity", 1);
-//        int userStuCount=sysUserService.count(queryWrapper);
-//        QueryWrapper<SysUser> queryWrapper1 = new QueryWrapper<SysUser>();
-//        queryWrapper1.eq("identity", 0)
-//                .isNotNull("city_name").ne("city_name","");
-//        int inCount=sysUserService.count(queryWrapper1);
-
         QueryWrapper<SysUser> queryWrapper = new QueryWrapper<SysUser>();
         int userStuCount=sysUserService.count(queryWrapper.eq("identity", 0));// identity 0代表为学生 1代表老师 2代表管理员
         int inCount=sysUserService.count(queryWrapper.isNotNull("city_name").ne("city_name",""));
@@ -1211,47 +1198,41 @@ public class SysUserController {
         QueryWrapper<SysUser> queryWrapper1 = new QueryWrapper<SysUser>();
         int sexManNum=sysUserService.count(queryWrapper1.eq("sex",1));
         int sexWoNum = userCount-sexManNum; //不允许非男非女 字段为空也代表女 1代表男 2代表女
-
         //学生 中男女比
         QueryWrapper<SysUser> queryWrapper2 = new QueryWrapper<SysUser>();
         int sexStuManNum = sysUserService.count(queryWrapper1.eq("identity", 0).eq("sex",1));
         int sexStuWoNum = userStuCount-sexStuManNum;
         QueryWrapper<SysUser> queryWrapper3 = new QueryWrapper<SysUser>();
         queryWrapper3.isNotNull("city_name").ne("city_name","").select("distinct city_name");
-//        queryWrapper3.groupBy("city_name");
-
-       List<SysUser> sysUsersList=sysUserService.list(queryWrapper3);
-
+        List<SysUser> sysUsersList=sysUserService.list(queryWrapper3);
         Map<String, Integer> cityMap=new TreeMap<>();//用TreeMap储存
        for (SysUser sysUser:sysUsersList){
            QueryWrapper<SysUser> queryWrapper4 = new QueryWrapper<SysUser>();
            if (sysUser.getCityName()!=null){
                cityMap.put(sysUser.getCityName(),sysUserService.count(queryWrapper4.eq("city_name",sysUser.getCityName())));
-//               System.out.println(sysUserService.count(queryWrapper4.eq("city_name",sysUser.getCityName())));
-//               System.out.println(sysUser.getCityName());
            }
        }
-        List<Map.Entry<String, Integer>> treeMapList =
-                new ArrayList<Map.Entry<String, Integer>>(cityMap.entrySet());
+        List<Map.Entry<String, Integer>> treeMapList = new ArrayList<Map.Entry<String, Integer>>(cityMap.entrySet());
         //通过value倒序排序
         Collections.sort(treeMapList, new Comparator<Map.Entry<String, Integer>>() {
             public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
                 return (o2.getValue() - o1.getValue());
             }
         });
-//        System.out.println("value倒序排列------------------");
-//        for (int i = 0; i < treeMapList.size(); i++) {
-//            String id = treeMapList.get(i).toString();
-//            System.out.println(id);
-//        }
-        //重新写到map
+        //重新写到map  并得到 key values 集合
         Map map=new LinkedHashMap();  // hashmap 会搞乱顺序 只取前9 当数量不够8是后不用管
+        Map hotMap=new LinkedHashMap();
+        List cityList=new LinkedList();
+        List<Integer> cityNumList=new LinkedList();
         for (int i = 0; i < treeMapList.size(); i++) {
             //
             if (i>8){
                 break;
             }
             if (treeMapList.get(i).getValue()>0){
+                cityList.add(treeMapList.get(i).getKey());
+//                cityList.add(i);
+                cityNumList.add(treeMapList.get(i).getValue());
                 map.put(treeMapList.get(i).getKey(),treeMapList.get(i).getValue());
             }
         }
@@ -1263,12 +1244,21 @@ public class SysUserController {
         json.put("sexWoNum",sexWoNum);
         json.put("sexStuManNum",sexStuManNum);
         json.put("sexStuWoNum",sexStuWoNum);
-//        json.put("stuCompare",sexManNum/sexWoNum); //学生中男女比
-//        json.put("userCompare",sexManNum/sexWoNum);//
         String progress=((inCount*100)/userStuCount)+"%";
         json.put("progress",progress); //百分比进度
         json.put("hotCity",map);
         json.put("cityMap",cityMap); //不排序 应该选出12个就够用了  暂时全部写上 让前端随机选取
+
+//      适配app
+        Map seriesMap=new LinkedHashMap();
+        seriesMap.put("name","人数");
+        seriesMap.put("data",cityNumList);
+        hotMap.put("categories",cityList);
+        List seriesList= new ArrayList<>();
+        seriesList.add(seriesMap);
+        hotMap.put("series",seriesList);
+        json.put("Column",hotMap);
+
         result.setCode(200);
         result.setSuccess(true);
         result.setMessage("app web 数据展示 通用");
@@ -1512,9 +1502,7 @@ public class SysUserController {
                 }
                 if(null != cityName){
                     sysUser.setCityName(cityName);
-                }//runrab
-
-
+                }
                 sysUser.setUpdateTime(new Date());
                 sysUserService.updateById(sysUser);
             }
