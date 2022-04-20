@@ -106,7 +106,9 @@ public class SysUserController {
     @PermissionData(pageComponent = "system/UserList")
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public Result<IPage<SysUser>> queryPageList(SysUser user,@RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
-									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,HttpServletRequest req) {
+									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
+                                      @RequestParam(name="identity", required = false) Integer identity,
+                                                HttpServletRequest req) {
 		Result<IPage<SysUser>> result = new Result<IPage<SysUser>>();
 		QueryWrapper<SysUser> queryWrapper = QueryGenerator.initQueryWrapper(user, req.getParameterMap());
         
@@ -137,6 +139,12 @@ public class SysUserController {
 
         //TODO 外部模拟登陆临时账号，列表不显示
         queryWrapper.ne("username","_reserve_user_external");
+
+        // 新增 划分学生 教师 管理员
+        if(identity!=null&&(identity==0||identity==1)){
+            queryWrapper.eq("identity",Integer.valueOf(identity));
+        }
+        
 		Page<SysUser> page = new Page<SysUser>(pageNo, pageSize);
 		IPage<SysUser> pageList = sysUserService.page(page, queryWrapper);
 
@@ -1441,6 +1449,7 @@ public class SysUserController {
      * 移动端修改用户信息
      * @param jsonObject
      * runrab 修改 新增字段 并新增判断
+     * 新增教师修改用户信息判断
      * @return
      */
     @RequestMapping(value = "/appEdit", method = {RequestMethod.PUT,RequestMethod.POST})
@@ -1452,8 +1461,14 @@ public class SysUserController {
             if(null!=jsonObject.getString("role")){
                 username = jsonObject.getString("username");
             }else {
-                username = JwtUtil.getUserNameByToken(request);
+                // 新增更改用户 教师使用
+                if(jsonObject.getString("username")!=null){
+                    username = jsonObject.getString("username");
+                }else {
+                    username = JwtUtil.getUserNameByToken(request);
+                }
             }
+            System.out.println(username);
 //            String username = JwtUtil.getUserNameByToken(request);
             SysUser sysUser = sysUserService.getUserByName(username);
             baseCommonService.addLog("移动端编辑用户，id： " +jsonObject.getString("id") ,CommonConstant.LOG_TYPE_2, 2);
