@@ -8,3 +8,6 @@ rebel.xml
 application-dev.yml
 /.jpb/
 *.cmd
+application-dev.yml
+application-prod.yml
+application-test.yml
