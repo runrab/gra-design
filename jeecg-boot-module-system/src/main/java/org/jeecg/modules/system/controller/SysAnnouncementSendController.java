@@ -5,8 +5,6 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
 import org.apache.poi.ss.formula.functions.T;
 import org.apache.shiro.SecurityUtils;
 import org.jeecg.common.api.vo.Result;
@@ -19,8 +17,8 @@ import org.jeecg.modules.message.websocket.WebSocket;
 import org.jeecg.modules.system.entity.SysAnnouncementSend;
 import org.jeecg.modules.system.entity.SysUserDepart;
 import org.jeecg.modules.system.model.AnnouncementSendModel;
-import org.jeecg.modules.system.model.DepartIdModel;
 import org.jeecg.modules.system.service.ISysAnnouncementSendService;
+import org.jeecg.modules.system.service.ISysDepartService;
 import org.jeecg.modules.system.service.ISysUserDepartService;
 import org.jeecg.modules.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +60,9 @@ public class SysAnnouncementSendController {
 	 private ISysUserDepartService sysUserDepartService;
 	 @Autowired
 	 private ISysUserService sysUserService;
+
+	 @Autowired
+	 private ISysDepartService sysDepartService;
 
 	/**
 	  * 分页列表查询
@@ -284,10 +285,18 @@ public class SysAnnouncementSendController {
 		 String depId = sysUserDepartService.getOne(queryWrapper).getDepId();
 		 List<AnnouncementSendModel> pageList = new ArrayList<>();
 		 if (depId!=null){
+			 //获取部门下所有 dep_id 包含本身
+			 JSONObject jsonObject=sysDepartService.queryAllParentIdByDepartId(depId).getJSONObject(depId);
+			 String str=jsonObject.get("parentIds").toString();
+			 String[] s=str.replace("[","").replace("]","").split(",");
+			 List<String> depIds=Arrays.asList(s);
 			 List<AnnouncementSendModel> pageList1 = new ArrayList<>();
-			 announcementSendModel.setUserId(depId);
-			 pageList1 = sysAnnouncementSendService.getMyAnnouncement(announcementSendModel);
-			 pageList.addAll(pageList1);
+			 for (String dep:depIds){
+				 String depI=dep.replace("\"","");
+				 announcementSendModel.setUserId(depI);
+				 pageList1 = sysAnnouncementSendService.getMyAnnouncement(announcementSendModel);
+				 pageList.addAll(pageList1);
+			 }
 		 }
 		 if (userId!=null){
 			 List<AnnouncementSendModel> pageList1 = new ArrayList<>();
@@ -302,9 +311,8 @@ public class SysAnnouncementSendController {
 		 return result;
 	 }
 
-
 	/**
-	 * @功能：一键已读
+	 * @功能：一键已读   等待修改 当 组织内已经读完后显示已读
 	 * @return
 	 */
 	@PutMapping(value = "/readAll")
