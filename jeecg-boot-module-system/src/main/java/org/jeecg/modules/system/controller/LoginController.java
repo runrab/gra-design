@@ -4,7 +4,9 @@ import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.aliyuncs.exceptions.ClientException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.google.gson.JsonObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ import org.jeecg.modules.base.service.BaseCommonService;
 import org.jeecg.modules.system.entity.SysDepart;
 import org.jeecg.modules.system.entity.SysTenant;
 import org.jeecg.modules.system.entity.SysUser;
+import org.jeecg.modules.system.entity.SysUserDepart;
 import org.jeecg.modules.system.model.SysLoginModel;
 import org.jeecg.modules.system.service.*;
 import org.jeecg.modules.system.util.RandImageUtil;
@@ -52,6 +55,8 @@ public class LoginController {
     private RedisUtil redisUtil;
 	@Autowired
     private ISysDepartService sysDepartService;
+	@Autowired
+	private ISysUserDepartService sysUserDepartService;
 	@Autowired
 	private ISysTenantService sysTenantService;
 	@Autowired
@@ -129,7 +134,7 @@ public class LoginController {
 		if(oConvertUtils.isNotEmpty(username)) {
 			// 根据用户名查询用户信息
 			SysUser sysUser = sysUserService.getUserByName(username);
-			//用户登录信息
+			// 用户登录信息
 			Result<JSONObject> resultObj=userInfo(sysUser, result);
 			JSONObject jsonObject=resultObj.getResult();
 			JSONObject obj=new JSONObject();
@@ -528,6 +533,16 @@ public class LoginController {
 
 		//token 信息
 		obj.put("token", token);
+        // 用户所在部门
+		Map map=new HashMap<>();
+		QueryWrapper<SysUserDepart> sysUserDepartQueryWrapper=new QueryWrapper<>();
+		sysUserDepartQueryWrapper.eq("user_id",sysUser.getId());
+
+		String depId=sysUserDepartService.list(sysUserDepartQueryWrapper).get(0).getDepId();
+        map.put("depId",depId);
+		// 新增更多信息 userMore
+		obj.put("userMore", map);
+
 		result.setResult(obj);
 		result.setSuccess(true);
 		result.setCode(200);

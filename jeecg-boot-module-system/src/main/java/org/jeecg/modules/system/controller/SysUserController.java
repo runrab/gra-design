@@ -115,6 +115,9 @@ public class SysUserController {
         //update-begin-Author:wangshuai--Date:20211119--for:【vue3】通过部门id查询用户，通过code查询id
         //部门ID
         String departId = req.getParameter("departId");
+
+//        System.out.println(departId);
+
         if(oConvertUtils.isNotEmpty(departId)){
             LambdaQueryWrapper<SysUserDepart> query = new LambdaQueryWrapper<>();
             query.eq(SysUserDepart::getDepId,departId);
@@ -174,8 +177,8 @@ public class SysUserController {
 		String selectedDeparts = jsonObject.getString("selecteddeparts");
 
 //        System.out.println(jsonObject.toJSONString());
-        System.out.println(selectedRoles);
-        System.out.println(selectedDeparts);
+//        System.out.println(selectedRoles);
+//        System.out.println(selectedDeparts);
 		try {
 			SysUser user = JSON.parseObject(jsonObject.toJSONString(), SysUser.class);
 			user.setCreateTime(new Date());//设置创建时间
@@ -187,6 +190,7 @@ public class SysUserController {
 			user.setDelFlag(CommonConstant.DEL_FLAG_0);
 			// 保存用户走一个service 保证事务
 
+//            System.out.println(jsonObject.toJSONString());
 //            System.out.println(user.toString());
 
 			sysUserService.saveUser(user, selectedRoles, selectedDeparts);
@@ -1468,7 +1472,7 @@ public class SysUserController {
                     username = JwtUtil.getUserNameByToken(request);
                 }
             }
-            System.out.println(username);
+//            System.out.println(username);
 //            String username = JwtUtil.getUserNameByToken(request);
             SysUser sysUser = sysUserService.getUserByName(username);
             baseCommonService.addLog("移动端编辑用户，id： " +jsonObject.getString("id") ,CommonConstant.LOG_TYPE_2, 2);
@@ -1657,7 +1661,8 @@ public class SysUserController {
         String username = sysUser.getUsername();
         Integer identity = sysUser.getUserIdentity();
         map.put("sysUser",sysUser);
-        if(identity!=null && identity==2){
+//         && identity==2
+        if(identity!=null){
             //获取部门用户信息
             String departIds = sysUser.getDepartIds();
             if(StringUtils.isNotBlank(departIds)){
@@ -1682,6 +1687,22 @@ public class SysUserController {
         result.setResult(childrenUser);
         return result;
     }
+    /**
+     * 根据用户所属 部门id 查询部门下用户 同级和子级 用户
+     *
+     * */
+    @GetMapping("/appQueryUserByDepartId")
+    public Result<List<SysUser>> appQueryUserByDepartId(@RequestParam(name="departId", required = true) String departId) {
+        Result<List<SysUser>> result = new Result<List<SysUser>>();
+        List<String> list=new ArrayList<String> ();
+//        list.add(departId);
+//        sysUserService.queryByDepIds(list,null)
+        List<SysUser> childrenUser = sysUserDepartService.queryUserByDepId(departId);
+        result.setResult(childrenUser);
+        return result;
+    }
+
+
     /**
      * 移动端查询用户信息(通过用户名模糊查询)
      * @param keyword
@@ -1805,7 +1826,7 @@ public class SysUserController {
             if(sex!=1){
                 sex=2;
             }
-            System.out.println(sex);
+//            System.out.println(sex);
             user.setSex(Integer.valueOf(sex));
             user.setRealname(DataGenerator.name());//realename
             user.setUsername(DataGenerator.userName());
@@ -1823,8 +1844,8 @@ public class SysUserController {
             result.setCode(200);
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println(e.getMessage());
-            System.out.println("插入用户失败");
+//            System.out.println(e.getMessage());
+//            System.out.println("插入用户失败");
             result.setSuccess(false);
             result.setMessage("添加用户失败");
         }
