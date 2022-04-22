@@ -48,8 +48,8 @@ public class Zhaopin implements Serializable {
     @ApiModelProperty(value = "更新日期")
     private java.util.Date updateTime;
 	/**所属部门*/
-    @ApiModelProperty(value = "所属部门")
-    private java.lang.String sysOrgCode;
+    @ApiModelProperty(value = "公司名称")
+    private java.lang.String company;
 	/**招聘发布信息用户*/
 	@Excel(name = "招聘发布信息用户", width = 15)
     @ApiModelProperty(value = "招聘发布信息用户")

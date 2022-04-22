@@ -1483,7 +1483,13 @@ public class SysUserController {
             String email=jsonObject.getString("email");
             Date birthday=jsonObject.getDate("birthday");
 
-            Integer visible=Integer.valueOf(jsonObject.getString("visible"));
+            Integer visible=0; //默认全体可见
+            if(jsonObject.getString("visible")==null || jsonObject.getString("visible")==""){
+                visible = Integer.valueOf(0);
+            }else {
+                visible=Integer.valueOf(jsonObject.getString("visible"));
+            }
+
             String cityName=jsonObject.getString("cityName"); //runrab 暂时未确定
 
 

@@ -82,8 +82,6 @@ public class ZhaopinController extends JeecgController<Zhaopin, IZhaopinService>
 	@ApiOperation(value="招聘信息-添加", notes="招聘信息-添加")
 	@PostMapping(value = "/add")
 	public Result<String> add(@RequestBody Zhaopin zhaopin) {
-		System.out.println(122222);
-		System.out.println(zhaopin.toString());
 		zhaopinService.save(zhaopin);
 		return Result.OK("添加成功！");
 	}
