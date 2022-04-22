@@ -1573,11 +1573,15 @@ public class SysUserController {
         Result result = new Result();
         try {
             String username = JwtUtil.getUserNameByToken(request);
-//            String username=jsonObject.getString("username");
+//          String username=jsonObject.getString("username");
             SysUser sysUser = sysUserService.getUserByName(username);
             String oldPassword=jsonObject.getString("oldpassword");
             String password=jsonObject.getString("password");
             String confirmPassword=jsonObject.getString("confirmpassword");
+            System.out.println(username);
+            System.out.println(oldPassword);
+            System.out.println(password);
+            System.out.println(confirmPassword);
             if(sysUser==null) {
                 result.error500("未找到对应用户!");
             }else {
