@@ -1,5 +1,6 @@
 package org.jeecg.modules.system.mapper;
 
+import com.baomidou.mybatisplus.annotation.InterceptorIgnore;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
@@ -145,5 +146,6 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
 
 
 	// 柱状图
+	@InterceptorIgnore(tenantLine = "true")
 	List<ShowLineCharts> showLineCharts();
 }

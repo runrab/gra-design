@@ -1371,12 +1371,14 @@ public class SysUserController {
         JSONObject json=new JSONObject();
         List<ShowLineCharts> showLineChartsList =sysUserService.showLineCharts();
         List lst=new ArrayList<>();
-        Map map=new HashMap<>();
         for (ShowLineCharts s:showLineChartsList){
-            map.put("type",s.getCityName());
-            map.put("男生",s.getMan());
-            map.put("女生",s.getWo());
-            lst.add(map);
+            Map map=new HashMap<>();
+            if (s.getCityName()!=null && s.getCityName()!=""){
+                map.put("type",s.getCityName());
+                map.put("男生",s.getMan());
+                map.put("女生",s.getWo());
+                lst.add(map);
+            }
         }
         json.put("line",lst);
         result.setCode(200);

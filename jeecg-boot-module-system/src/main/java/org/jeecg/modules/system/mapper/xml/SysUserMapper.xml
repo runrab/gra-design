@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.jeecg.modules.system.mapper.SysUserMapper">
 
+
 	<!-- 根据用户名查询 -->
 	<select id="getUserByName" resultType="org.jeecg.modules.system.entity.SysUser">
 		select * from  sys_user  where username = #{username} and del_flag = 0
@@ -163,9 +164,8 @@
 		</if>
 	</select>
 
-	<select id="showLineCharts" resultType="org.jeecg.modules.system.entity.ShowLineCharts">
-		select city_name, count('city_name') as count,count("sex = 1") as man,count("sex=2") as wo
-		from sys_user group by city_name ORDER BY count DESC limit 12;
+	<select id="showLineCharts"  resultType="org.jeecg.modules.system.entity.ShowLineCharts">
+		select city_name, count('city_name') as count,count(sex=2  OR NULL) as wo,count(sex=1  OR NULL) as man from sys_user group by city_name ORDER BY count DESC;
 	</select>
 
 

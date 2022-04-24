@@ -1,11 +1,13 @@
 package org.jeecg.modules.system.entity;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.io.Serializable;
 
-@Data
+@Getter
+@Setter
 public class ShowLineCharts implements Serializable {
     private static final long serialVersionUID = 1L;
     private String cityName;
