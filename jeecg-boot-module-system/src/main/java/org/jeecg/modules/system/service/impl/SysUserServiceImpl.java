@@ -540,4 +540,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 		return userList.stream().map(SysUser::getUsername).collect(Collectors.toList());
 	}
 
+	@Override
+	public List<ShowLineCharts> showLineCharts() {
+		return userMapper.showLineCharts();
+	}
 }

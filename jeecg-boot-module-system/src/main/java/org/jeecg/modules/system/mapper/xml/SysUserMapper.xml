@@ -162,4 +162,11 @@
 			and username != #{username}
 		</if>
 	</select>
+
+	<select id="showLineCharts" resultType="org.jeecg.modules.system.entity.ShowLineCharts">
+		select city_name, count('city_name') as count,count("sex = 1") as man,count("sex=2") as wo
+		from sys_user group by city_name ORDER BY count DESC limit 12;
+	</select>
+
+
 </mapper>

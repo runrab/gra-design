@@ -112,7 +112,6 @@ public class SysUserController {
 		Result<IPage<SysUser>> result = new Result<IPage<SysUser>>();
 		QueryWrapper<SysUser> queryWrapper = QueryGenerator.initQueryWrapper(user, req.getParameterMap());
         
-        //update-begin-Author:wangshuai--Date:20211119--for:【vue3】通过部门id查询用户，通过code查询id
         //部门ID
         String departId = req.getParameter("departId");
 
@@ -131,14 +130,12 @@ public class SysUserController {
             queryWrapper.in("id",Arrays.asList(code.split(",")));
             pageSize = code.split(",").length;
         }
-        //update-end-Author:wangshuai--Date:20211119--for:【vue3】通过部门id查询用户，通过code查询id
 
-        //update-begin-author:taoyan--date:20220104--for: JTC-372 【用户冻结问题】 online授权、用户组件，选择用户都能看到被冻结的用户
         String status = req.getParameter("status");
         if(oConvertUtils.isNotEmpty(status)){
             queryWrapper.eq("status", Integer.parseInt(status));
         }
-        //update-end-author:taoyan--date:20220104--for: JTC-372 【用户冻结问题】 online授权、用户组件，选择用户都能看到被冻结的用户
+        //【用户冻结问题】 online授权、用户组件，选择用户都能看到被冻结的用户
 
         //TODO 外部模拟登陆临时账号，列表不显示
         queryWrapper.ne("username","_reserve_user_external");
@@ -1363,6 +1360,28 @@ public class SysUserController {
         result.setCode(200);
         result.setSuccess(true);
         result.setMessage("app web 班级 通用");
+        result.setResult(json);
+        return result;
+    }
+
+
+    @GetMapping(value = "/showLineCount")
+    public Result showLineCount(HttpServletRequest request, @RequestParam(name = "token", required = false) String token) {
+        Result result=new Result();
+        JSONObject json=new JSONObject();
+        List<ShowLineCharts> showLineChartsList =sysUserService.showLineCharts();
+        List lst=new ArrayList<>();
+        Map map=new HashMap<>();
+        for (ShowLineCharts s:showLineChartsList){
+            map.put("type",s.getCityName());
+            map.put("男生",s.getMan());
+            map.put("女生",s.getWo());
+            lst.add(map);
+        }
+        json.put("line",lst);
+        result.setCode(200);
+        result.setSuccess(true);
+        result.setMessage("app web echarts 表格子");
         result.setResult(json);
         return result;
     }

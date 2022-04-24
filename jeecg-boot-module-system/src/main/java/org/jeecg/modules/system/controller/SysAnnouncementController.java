@@ -368,13 +368,10 @@ public class SysAnnouncementController {
 		querySaWrapper.eq(SysAnnouncement::getDelFlag,CommonConstant.DEL_FLAG_0.toString());  // 未删除
 		querySaWrapper.eq(SysAnnouncement::getSendStatus, CommonConstant.HAS_SEND); //已发布
 		querySaWrapper.ge(SysAnnouncement::getEndTime, sysUser.getCreateTime()); //新注册用户不看结束通知
-		//update-begin--Author:liusq  Date:20210108 for：[JT-424] 【开源issue】bug处理--------------------
 		querySaWrapper.notInSql(SysAnnouncement::getId,"select annt_id from sys_announcement_send where user_id='"+userId+"'");
-		//update-begin--Author:liusq  Date:20210108  for： [JT-424] 【开源issue】bug处理--------------------
 		List<SysAnnouncement> announcements = sysAnnouncementService.list(querySaWrapper);
 		if(announcements.size()>0) {
 			for(int i=0;i<announcements.size();i++) {
-				//update-begin--Author:wangshuai  Date:20200803  for： 通知公告消息重复LOWCOD-759--------------------
 				//因为websocket没有判断是否存在这个用户，要是判断会出现问题，故在此判断逻辑
 				LambdaQueryWrapper<SysAnnouncementSend> query = new LambdaQueryWrapper<>();
 				query.eq(SysAnnouncementSend::getAnntId,announcements.get(i).getId());
@@ -389,7 +386,6 @@ public class SysAnnouncementController {
 					sysAnnouncementSendService.save(announcementSend);
 					log.info("announcementSend.toString()",announcementSend.toString());
 				}
-				//update-end--Author:wangshuai  Date:20200803  for： 通知公告消息重复LOWCOD-759------------
 			}
 		}
 		// 2.查询用户未读的系统消息

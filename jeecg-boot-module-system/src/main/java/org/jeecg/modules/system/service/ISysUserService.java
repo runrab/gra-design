@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.vo.SysUserCacheInfo;
+import org.jeecg.modules.system.entity.ShowLineCharts;
 import org.jeecg.modules.system.entity.SysUser;
 import org.jeecg.modules.system.model.SysUserSysDepartModel;
 import org.springframework.transaction.annotation.Transactional;
@@ -252,4 +253,5 @@ public interface ISysUserService extends IService<SysUser> {
 	/** userId转为username */
 	List<String> userIdToUsername(Collection<String> userIdList);
 
+	List<ShowLineCharts> showLineCharts();
 }

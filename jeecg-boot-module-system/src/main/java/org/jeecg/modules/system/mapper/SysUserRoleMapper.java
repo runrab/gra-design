@@ -3,6 +3,7 @@ package org.jeecg.modules.system.mapper;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.jeecg.modules.system.entity.ShowLineCharts;
 import org.jeecg.modules.system.entity.SysUserRole;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
