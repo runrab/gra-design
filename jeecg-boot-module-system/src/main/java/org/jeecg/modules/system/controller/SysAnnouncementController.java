@@ -162,16 +162,16 @@ public class SysAnnouncementController {
 		String userIds=sysAnnouncement.getUserIds().replaceAll(",",""); //被添加了逗号
 		String userId=sysUserDepartService.getOne(queryWrapper.eq("user_id",userIds)).getDepId()+','; //再添加回去
 		sysAnnouncement.setUserIds(userId);
-
+		sysAnnouncement.setSendTime(new Date());
+		sysAnnouncement.setStartTime(new Date());
 		try {
-			// update-begin-author:liusq date:20210804 for:标题处理xss攻击的问题
 			String title = XSSUtils.striptXSS(sysAnnouncement.getTitile());
 			sysAnnouncement.setTitile(title);
-			// update-end-author:liusq date:20210804 for:标题处理xss攻击的问题
 			sysAnnouncement.setDelFlag(CommonConstant.DEL_FLAG_0.toString());
 			sysAnnouncement.setSendStatus(CommonSendStatus.PUBLISHED_STATUS_1);//未发布
 			sysAnnouncementService.saveAnnouncement(sysAnnouncement);
 			result.success("添加成功！");
+			result.setMessage(sysAnnouncement.getId());
 		} catch (Exception e) {
 			log.error(e.getMessage(),e);
 			result.error500("操作失败");

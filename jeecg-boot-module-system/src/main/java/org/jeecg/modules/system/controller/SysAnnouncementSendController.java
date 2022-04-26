@@ -276,10 +276,69 @@ public class SysAnnouncementSendController {
 
 
 	 // 手动分页
+//	 @GetMapping(value = "/getMyAnnouncementSendMsg")
+//	 public Result<List<AnnouncementSendModel>> getMyAnnouncementSendMsg(AnnouncementSendModel announcementSendModel,
+//																		 @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+//																		 @RequestParam(name="pageSize", defaultValue="10") Integer pageSize) {
+//		 Result<List<AnnouncementSendModel>> result = new Result<List<AnnouncementSendModel>>();
+//		 LoginUser sysUser = (LoginUser)SecurityUtils.getSubject().getPrincipal();
+//		 String userId = sysUser.getId();
+//		 System.out.println(userId);
+//
+//		 QueryWrapper<SysUserDepart> queryWrapper=new QueryWrapper<>();
+//		 queryWrapper.eq("user_id",userId);
+//		 String depId = sysUserDepartService.getOne(queryWrapper).getDepId();
+//		 System.out.println(depId);
+//		 List<AnnouncementSendModel> pageList = new ArrayList<>();
+//		 if (depId!=null){
+//			 //获取部门下所有 dep_id 包含本身
+//			 JSONObject jsonObject=sysDepartService.queryAllParentIdByDepartId(depId).getJSONObject(depId);
+//			 String str=jsonObject.get("parentIds").toString();
+//			 String[] s=str.replace("[","").replace("]","").split(",");
+//			 List<String> depIds=Arrays.asList(s);
+//			 List<AnnouncementSendModel> pageList1 = new ArrayList<>();
+//			 for (String dep:depIds){
+//				 String depI=dep.replace("\"","");
+//				 announcementSendModel.setUserId(depI);
+//				 // 组织消息默认已经读取
+//				 announcementSendModel.setReadFlag(CommonConstant.HAS_READ_FLAG);
+//				 pageList1 = sysAnnouncementSendService.getMyAnnouncement(announcementSendModel);
+//				 pageList.addAll(pageList1);
+//			 }
+//		 }
+//		 if (userId!=null){
+//			 List<AnnouncementSendModel> pageList1 = new ArrayList<>();
+//			 announcementSendModel.setUserId(userId);
+//			 pageList1 = sysAnnouncementSendService.getMyAnnouncement(announcementSendModel);
+//			 pageList.addAll(pageList1);
+//		 }
+//		 // jdk8 去重 list 此处其实不用去重复 防止 公告同时指定组织和个人 导致消息重复收到
+//		 List<AnnouncementSendModel> myList = pageList.stream().distinct().collect(Collectors.toList());
+//		// 手动对list 进行切分
+////		 if(pageNo<1) {
+////			 pageNo = 1;
+////			 pageSize = myList.size();
+////		 }
+////		 System.out.println(myList.size());
+////		 List<AnnouncementSendModel>  newPageList= myList.subList((pageNo-1)*pageSize,
+////				 (myList.size()<pageNo*pageSize-1)?myList.size():pageNo*pageSize);
+////		 result.setResult(newPageList);
+////		 for (AnnouncementSendModel a:newPageList){
+////			 System.out.println(a.toString());
+////		 }
+//
+//		 System.out.println(myList.size());
+//		 result.setResult(myList);
+//		 result.setSuccess(true);
+//		 return result;
+//	 }
+
+
 	 @GetMapping(value = "/getMyAnnouncementSendMsg")
 	 public Result<List<AnnouncementSendModel>> getMyAnnouncementSendMsg(AnnouncementSendModel announcementSendModel,
 																		 @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
-																		 @RequestParam(name="pageSize", defaultValue="10") Integer pageSize) {
+																		 @RequestParam(name="pageSize", defaultValue="10") Integer pageSize
+	 ) {
 		 Result<List<AnnouncementSendModel>> result = new Result<List<AnnouncementSendModel>>();
 		 LoginUser sysUser = (LoginUser)SecurityUtils.getSubject().getPrincipal();
 		 String userId = sysUser.getId();
@@ -297,8 +356,6 @@ public class SysAnnouncementSendController {
 			 for (String dep:depIds){
 				 String depI=dep.replace("\"","");
 				 announcementSendModel.setUserId(depI);
-				 // 组织消息默认已经读取
-				 announcementSendModel.setReadFlag(CommonConstant.HAS_READ_FLAG);
 				 pageList1 = sysAnnouncementSendService.getMyAnnouncement(announcementSendModel);
 				 pageList.addAll(pageList1);
 			 }
@@ -311,18 +368,16 @@ public class SysAnnouncementSendController {
 		 }
 		 // jdk8 去重 list 此处其实不用去重复 防止 公告同时指定组织和个人 导致消息重复收到
 		 List<AnnouncementSendModel> myList = pageList.stream().distinct().collect(Collectors.toList());
-		// 手动对list 进行切分
-		 if(pageNo<1) {
-			 pageNo = 1;
-		 }
-		 List<AnnouncementSendModel>  newPageList= myList.subList((pageNo-1)*pageSize,
-				 (myList.size()<pageNo*pageSize-1)?myList.size():pageNo*pageSize);
-		 result.setResult(newPageList);
+		 int start = (pageNo-1)*pageSize;
+		 int end= (myList.size() < pageNo*pageSize-1) ? myList.size():pageNo*pageSize;
+		 List lst=myList.subList(start,end);
+		 result.setResult(lst);
 		 result.setSuccess(true);
 		 return result;
 	 }
 
-	/**
+
+	 /**
 	 * @功能：一键已读   等待修改 当 组织内已经读完后显示已读
 	 * @return
 	 */
